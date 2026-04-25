@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
+    <style>
+        :root { --bg: #f8fafc; --white: #ffffff; --green: #10b981; --text: #1e293b; --dim: #64748b; --border: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; padding: 0 20px; }
+        .card-table { background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; width: 100%; margin-bottom: 40px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; padding: 15px 20px; text-align: left; color: var(--dim); font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 15px 20px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .btn-new { background: var(--green); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.2s; }
+        .btn-new:hover { background: #065f46; }
+        .category-tag { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; color: var(--dim); }
+
+        /* Estilo da Busca e Filtro */
+        .search-container { background: var(--white); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .search-input, .search-select { padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; outline: none; }
+        .search-input { flex: 2; min-width: 200px; }
+        .search-select { flex: 1; min-width: 150px; background-color: white; }
+        .search-input:focus, .search-select:focus { border-color: var(--green); }
+        .btn-search { background: var(--text); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; height: 40px; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Catálogo de Produtos</h1>
+        <a th:href="@{/produtos/novo}" class="btn-new" sec:authorize="hasRole('ADMIN')">+ Novo Produto</a>
+    </div>
+
+    <form th:action="@{/produtos}" method="get" class="search-container">
+        <input type="text" name="nome" class="search-input" placeholder="Nome do produto..." th:value="${param.nome}">
+
+        <select name="categoriaId" class="search-select">
+            <option value="">Todas as Categorias</option>
+            <option th:each="cat : ${categorias}"
+                    th:value="${cat.idCategoria}"
+                    th:text="${cat.nome}"
+                    th:selected="${cat.idCategoria == categoriaSelecionada}">
+            </option>
+        </select>
+
+        <button type="submit" class="btn-search">Filtrar</button>
+        <a th:href="@{/produtos}" th:if="${param.nome != null or param.categoriaId != null}"
+           style="color: var(--dim); font-size: 0.85rem; text-decoration: none; margin-left: 5px;">Limpar</a>
+    </form>
+
+    <div class="card-table">
+        <table th:if="${not #lists.isEmpty(produtos)}">
+            <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th sec:authorize="hasRole('ADMIN')" style="text-align: center;">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${produtos}">
+                <td th:text="${p.nome}" style="font-weight: 600;"></td>
+                <td><span class="category-tag" th:text="${p.categoria != null ? p.categoria.nome : 'Geral'}"></span></td>
+                <td th:text="${'R$ ' + p.valor}"></td>
+                <td sec:authorize="hasRole('ADMIN')" style="text-align: center;">
+                    <a th:href="@{/produtos/editar/{id}(id=${p.idProduto})}" style="color: var(--green); text-decoration: none; font-weight: 600; margin-right: 10px;">Editar</a>
+                    <a th:href="@{/produtos/deletar/{id}(id=${p.idProduto})}" style="color: #ef4444; text-decoration: none; font-weight: 600;" onclick="return confirm('Excluir?')">Excluir</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${#lists.isEmpty(produtos)}" style="padding: 40px; text-align: center; color: var(--dim);">
+            <p>Nenhum produto encontrado para o filtro aplicado.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

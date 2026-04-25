@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Categorias</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
+    <style>
+        :root { --bg: #f8fafc; --white: #ffffff; --blue: #3b82f6; --dark-blue: #1d4ed8; --text: #1e293b; --dim: #64748b; --border: #e2e8f0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 700px; padding: 0 20px; }
+        h1 { font-size: 2rem; font-weight: 700; letter-spacing: -1px; color: var(--text); }
+        .card-table { background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; width: 100%; border: 1px solid var(--border); margin-bottom: 40px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; padding: 15px 20px; text-align: left; color: var(--dim); font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 15px 20px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .btn-new { background: var(--blue); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.2s; }
+        .btn-new:hover { background: var(--dark-blue); }
+        .nav-back { margin-top: 20px; margin-bottom: 10px; align-self: flex-start; width: 100%; max-width: 700px; }
+        .nav-back a { color: var(--blue); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+
+        /* Estilo da Busca */
+        .search-container { background: var(--white); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 10px; }
+        .search-input { flex: 1; padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; outline: none; }
+        .btn-search { background: var(--text); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px;">
+        <h1>Categorias</h1>
+        <a th:href="@{/categorias/novo}" class="btn-new" sec:authorize="hasRole('ADMIN')">+ Nova Categoria</a>
+    </div>
+
+    <form th:action="@{/categorias}" method="get" class="search-container">
+        <input type="text" name="nome" class="search-input" placeholder="Buscar categoria..." th:value="${param.nome}">
+        <button type="submit" class="btn-search">Buscar</button>
+        <a th:href="@{/categorias}" th:if="${param.nome}" style="align-self: center; color: var(--dim); font-size: 0.8rem; text-decoration: none;">Limpar</a>
+    </form>
+
+    <div class="card-table">
+        <table th:if="${not #lists.isEmpty(categorias)}">
+            <thead>
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Nome da Categoria</th>
+                <th sec:authorize="hasRole('ADMIN')" style="text-align: center;">Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categorias}">
+                <td th:text="${cat.idCategoria}" style="color: var(--dim);"></td>
+                <td th:text="${cat.nome}" style="font-weight: 600;"></td>
+                <td sec:authorize="hasRole('ADMIN')" style="text-align: center;">
+                    <a th:href="@{/categorias/editar/{id}(id=${cat.idCategoria})}"
+                       style="color: var(--blue); text-decoration: none; font-weight: 600; margin-right: 15px;">Editar</a>
+                    <a th:href="@{/categorias/deletar/{id}(id=${cat.idCategoria})}"
+                       style="color: #ef4444; text-decoration: none; font-weight: 600;"
+                       onclick="return confirm('Excluir esta categoria?')">Excluir</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${#lists.isEmpty(categorias)}" style="padding: 40px; text-align: center; color: var(--dim);">
+            <p>Nenhuma categoria encontrada.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Produto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --white: #ffffff;
+            --primary-green: #10b981;
+            --dark-green: #065f46;
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            letter-spacing: -1px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            ring: 2px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            text-align: center;
+            text-decoration: none;
+
+            /* Adicione estas 3 linhas abaixo para igualar os tamanhos */
+            display: block;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+        }
+
+        .btn-save {
+            background-color: var(--primary-green);
+            color: white;
+            /* Removido o border: none para manter a consistência com o btn-cancel */
+        }
+
+        .btn-save:hover {
+            background-color: var(--dark-green);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border-color); /* Este já tem borda visível */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Novo Produto</h2>
+
+        <form th:action="@{/produtos/novo}" th:object="${produto}" method="post">
+            <input type="hidden" th:if="${produto.idProduto != null}" th:field="*{idProduto}">
+
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Preço (R$)</label>
+                <input type="number" step="0.01" th:field="*{valor}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Categoria</label>
+                <select th:field="*{categoria}" required
+                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <option value="">Selecione uma categoria</option>
+                    <option th:each="cat : ${categorias}"
+                            th:value="${cat.idCategoria}"
+                            th:text="${cat.nome}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-save">Salvar Produto</button>
+                <a th:href="@{/produtos}" class="btn btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <style th:fragment="nav-style">
+        .navbar {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+        }
+        .nav-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .nav-links a:hover { color: #10b981; }
+
+        /* Estilo para destacar o link ativo ou o nome da marca */
+        .brand {
+            font-weight: 800;
+            color: #10b981;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+        .user-section { display: flex; align-items: center; gap: 15px; }
+
+        /* Estilo para o nome do usuário */
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f1f5f9;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .badge-admin { background: #dcfce7; color: #166534; }
+        .badge-aluno { background: #e0f2fe; color: #0369a1; }
+
+        .btn-sair {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-sair:hover { background: #ef4444; color: white; }
+    </style>
+</head>
+<body>
+<div th:fragment="nav" class="navbar">
+    <div class="nav-container">
+        <div class="nav-links">
+            <a th:href="@{/}" class="brand">FATEC CATALOG</a>
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/produtos}">Produtos</a>
+            <a th:href="@{/categorias}">Categorias</a>
+        </div>
+        <div class="user-section">
+            <div class="user-name">
+                <span style="color: #64748b;">Olá,</span>
+                <span sec:authentication="name">Usuário</span>
+            </div>
+
+            <span class="badge badge-admin" sec:authorize="hasRole('ADMIN')">ADMIN</span>
+            <span class="badge badge-aluno" sec:authorize="hasRole('ALUNO')">ALUNO</span>
+
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn-sair">Sair</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

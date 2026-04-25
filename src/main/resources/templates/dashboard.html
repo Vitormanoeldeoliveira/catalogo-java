@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Fatec Catalog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --green: #10b981;
+            --blue: #3b82f6;
+            --text: #1e293b;
+            --dim: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 0 20px;
+        }
+
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h1 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .welcome-section p {
+            color: var(--dim);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .label {
+            color: var(--dim);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 10px 0;
+        }
+
+        .card-produtos {
+            border-left: 6px solid var(--green);
+        }
+
+        .card-categorias {
+            border-left: 6px solid var(--blue);
+        }
+
+        .quick-actions {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .quick-actions h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-dash {
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .btn-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .btn-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-dash:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<div class="container">
+    <div class="welcome-section">
+        <h1>Olá, <span sec:authentication="name">Usuário</span>!</h1>
+        <p>Bem-vindo ao painel de controle do seu catálogo.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card card-produtos">
+            <span class="label">Produtos Cadastrados</span>
+            <span class="value" th:text="${totalProdutos}">0</span>
+            <div class="btn-group">
+                <a th:href="@{/produtos}" class="btn-dash btn-green">Ver Produtos</a>
+            </div>
+        </div>
+
+        <div class="stat-card card-categorias">
+            <span class="label">Total de Categorias</span>
+            <span class="value" th:text="${totalCategorias}">0</span>
+            <div class="btn-group">
+                <a th:href="@{/categorias}" class="btn-dash btn-blue">Ver Categorias</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions" sec:authorize="hasRole('ADMIN')">
+        <h2>Ações Rápidas</h2>
+        <div class="btn-group">
+            <a th:href="@{/produtos/novo}" class="btn-dash" style="background: var(--text); color: white;">+ Novo
+                Produto</a>
+            <a th:href="@{/categorias/novo}" class="btn-dash" style="background: var(--dim); color: white;">+ Nova
+                Categoria</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
