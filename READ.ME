@@ -1,26 +1,36 @@
 # 🚀 Projeto Catálogo - Fatec
 
-Sistema de gerenciamento de produtos e categorias desenvolvido com **Spring Boot**, **Spring Security** e **PostgreSQL**. O projeto conta com autenticação por níveis de acesso (ADMIN/ALUNO), dashboard de indicadores e filtros de busca avançados.
+Sistema de gerenciamento de produtos e categorias desenvolvido com **Spring Boot**, **Spring Security** e **PostgreSQL**.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🐘 Configuração do Banco de Dados e `application.properties`
 
-* **Java 17**
-* **Spring Boot 3.2.5**
-* **Spring Data JPA** (Persistência de dados)
-* **Spring Security** (Autenticação e Autorização)
-* **Thymeleaf** (Engine de templates HTML)
-* **PostgreSQL** (Banco de dados relacional)
-* **Maven** (Gerenciador de dependências)
+Para que o projeto funcione, o Spring Boot precisa saber como se conectar ao seu banco de dados. Abaixo explicamos cada configuração presente no arquivo `src/main/resources/application.properties`.
+
+### 1. Parâmetros de Conexão
+Estas linhas definem "onde" está o banco e "quem" pode entrar:
+
+* **`spring.datasource.url`**: Define o endereço do banco.
+    * `jdbc:postgresql://localhost:5432/catalogoBD` indica que o banco está na sua máquina (`localhost`), na porta padrão (`5432`) e o nome do banco é `catalogoBD`.
+* **`spring.datasource.username`** e **`password`**: São as credenciais (usuário e senha) do seu PostgreSQL.
+* **`spring.datasource.driver-class-name`**: Informa ao Java qual "tradutor" (driver) usar para falar com o PostgreSQL.
+
+### 2. Configurações do Hibernate (JPA)
+O Hibernate é o que transforma suas classes Java em tabelas no banco:
+
+* **`spring.jpa.hibernate.ddl-auto=update`**:
+    * Esta é a configuração mais importante. O modo `update` faz com que o Spring crie as tabelas automaticamente assim que você inicia o projeto. Se você adicionar um campo novo na classe Java, ele atualiza a tabela no banco sem apagar seus dados.
+* **`spring.jpa.database-platform`**: Avisa ao Hibernate para usar o "dialeto" específico do PostgreSQL, garantindo que ele gere comandos SQL que o Postgres entenda perfeitamente.
+
+### 3. Logs e Debug
+* **`spring.jpa.show-sql=true`**: Faz com que todas as buscas e comandos que o Java enviar para o banco apareçam no console do IntelliJ/Eclipse.
+* **`spring.jpa.properties.hibernate.format_sql=true`**: Organiza o código SQL no console para que ele fique legível (com quebras de linha), em vez de uma linha gigante.
 
 ---
 
-## 🐘 Configuração do Banco de Dados
+## 🛠️ Como preparar o ambiente
 
-Para rodar este projeto localmente, você deve configurar o seu banco de dados PostgreSQL seguindo os parâmetros abaixo.
-
-### 1. Criar o Banco de Dados
-No seu terminal do PostgreSQL ou via pgAdmin, execute:
-```sql
-CREATE DATABASE "catalogoBD";
+1. **Abra o seu PostgreSQL** (pgAdmin ou Terminal) e crie o banco manualmente:
+   ```sql
+   CREATE DATABASE "catalogoBD";
