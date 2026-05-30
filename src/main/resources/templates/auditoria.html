@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Auditoria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --border-color: #e2e8f0;
+
+            /* Cores customizadas para as ações do histórico */
+            --bg-salvar: #dcfce7;
+            --txt-salvar: #15803d;
+            --bg-editar: #fef9c3;
+            --txt-editar: #a16207;
+            --bg-excluir: #fee2e2;
+            --txt-excluir: #b91c1c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .header-section {
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -1px;
+            margin: 0;
+        }
+
+        p {
+            color: var(--text-dim);
+            margin: 5px 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .card-table {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge-acao {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+
+        .badge-salvar {
+            background-color: var(--bg-salvar);
+            color: var(--txt-salvar);
+        }
+
+        .badge-editar {
+            background-color: var(--bg-editar);
+            color: var(--txt-editar);
+        }
+
+        .badge-excluir {
+            background-color: var(--bg-excluir);
+            color: var(--txt-excluir);
+        }
+
+        .user-tag {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        .data-hora {
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .empty-state {
+            padding: 50px;
+            text-align: center;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: nav}"></div>
+
+<div class="container">
+    <div class="header-section">
+        <h1>Painel de Auditoria</h1>
+        <p>Histórico completo de vistorias e alterações de produtos realizadas no sistema.</p>
+    </div>
+
+    <div class="card-table">
+        <table th:if="${not #lists.isEmpty(historicos)}">
+            <thead>
+            <tr>
+                <th style="width: 180px;">Data / Hora</th>
+                <th style="width: 110px;">Ação</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Responsável</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="h : ${historicos}">
+                <td class="data-hora"
+                    th:text="${h?.dataHora != null} ? ${#temporals.format(h.dataHora, 'dd/MM/yyyy HH:mm:ss')} : '---'"></td>
+                <td>
+                    <span th:class="'badge-acao ' + (${h?.acao} == 'SALVAR' ? 'badge-salvar' : (${h?.acao} == 'EDITAR' ? 'badge-editar' : 'badge-excluir'))"
+                          th:text="${h?.acao} ?: 'INFO'">
+                    </span>
+                </td>
+                <td th:text="${h?.nomeProduto ?: h?.nome ?: 'Desconhecido'}" style="font-weight: 600;"></td>
+                <td th:text="${h?.categoriaProduto ?: h?.categoria ?: 'Geral'}"></td>
+                <td th:text="${h?.valorProduto != null} ? 'R$ ' + ${h.valorProduto} : (${h?.valor != null} ? 'R$ ' + ${h.valor} : 'R$ 0,00')"></td>
+                <td>
+                    <span class="user-tag" th:text="${h?.usuarioResponsavel ?: 'Sistema'}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${historicos == null or #lists.isEmpty(historicos)}" class="empty-state">
+            Nenhuma movimentação ou vistoria registrada no histórico até o momento.
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

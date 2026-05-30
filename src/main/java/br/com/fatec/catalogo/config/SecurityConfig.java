@@ -19,14 +19,22 @@ public class SecurityConfig {
                         // Permite que todos vejam o login e arquivos estáticos (CSS/JS)
                         .requestMatchers("/login", "/css/**", "/js/**").permitAll()
 
-                        // Visualização: Aluno e Admin podem ver as listas
+                        // Gerenciamento de Usuários: SÓ ADMIN pode listar, carregar formulário, editar ou deletar
+                        .requestMatchers("/usuarios", "/usuarios/**").hasRole("ADMIN")
+
+                        // CORREÇÃO AQUI: Ajustado para a rota real da sua Controller (/auditoria)
+                        // Se você quer que APENAS ADMIN veja o histórico, deixe hasRole("ADMIN")
+                        // Se ALUNO também puder ver, mude para .hasAnyRole("ADMIN", "ALUNO")
+                        .requestMatchers("/auditoria", "/auditoria/**").hasRole("ADMIN")
+
+                        // Visualização: Aluno e Admin podem ver as listas de produtos e categorias
                         .requestMatchers("/produtos", "/categorias").hasAnyRole("ADMIN", "ALUNO")
 
-                        // Alteração: SÓ ADMIN pode acessar qualquer rota que salve, edite ou delete
-                        // O uso de ** garante que sub-rotas como /produtos/novo/salvar também sejam travadas
-                        .requestMatchers("/produtos/novo/**", "/produtos/editar/**", "/produtos/deletar/**").hasRole("ADMIN")
+                        // Alteração: SÓ ADMIN pode acessar qualquer rota que salve, edite ou delete produtos/categorias
+                        .requestMatchers("/produtos/novo/**", "/produtos/editar/**", "/produtos/deletar/**", "/produtos/excluir/**").hasRole("ADMIN")
                         .requestMatchers("/categorias/novo/**", "/categorias/editar/**", "/categorias/deletar/**").hasRole("ADMIN")
 
+                        // Qualquer outra rota não especificada exige apenas estar logado
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

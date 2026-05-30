@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Produto</title>
+    <title>Gerenciar Produto</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -15,6 +15,9 @@
             --text-main: #1e293b;
             --text-dim: #64748b;
             --border-color: #e2e8f0;
+            --error-bg: #fee2e2;
+            --error-text: #ef4444;
+            --dialog-overlay: rgba(15, 23, 42, 0.4);
         }
 
         body {
@@ -64,7 +67,7 @@
             margin-bottom: 8px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border-color);
@@ -75,10 +78,21 @@
             transition: border-color 0.2s ease;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary-green);
-            ring: 2px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .actions {
@@ -99,8 +113,6 @@
             font-size: 0.95rem;
             text-align: center;
             text-decoration: none;
-
-            /* Adicione estas 3 linhas abaixo para igualar os tamanhos */
             display: block;
             box-sizing: border-box;
             border: 1px solid transparent;
@@ -109,7 +121,6 @@
         .btn-save {
             background-color: var(--primary-green);
             color: white;
-            /* Removido o border: none para manter a consistência com o btn-cancel */
         }
 
         .btn-save:hover {
@@ -120,7 +131,60 @@
         .btn-cancel {
             background-color: transparent;
             color: var(--text-dim);
-            border: 1px solid var(--border-color); /* Este já tem borda visível */
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- Estilização do Modal de Confirmação --- */
+        dialog {
+            border: none;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        dialog::backdrop {
+            background-color: var(--dialog-overlay);
+            backdrop-filter: blur(4px);
+        }
+
+        dialog h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        dialog p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-dialog {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-confirm {
+            background-color: var(--primary-green);
+            color: white;
+        }
+
+        .btn-close {
+            background-color: #f1f5f9;
+            color: var(--text-dim);
         }
     </style>
 </head>
@@ -128,10 +192,12 @@
 
 <div class="container">
     <div class="card">
-        <h2>Novo Produto</h2>
+        <h2 th:text="${produto.idProduto != null} ? 'Editar Produto' : 'Novo Produto'">Novo Produto</h2>
 
-        <form th:action="@{/produtos/novo}" th:object="${produto}" method="post">
-            <input type="hidden" th:if="${produto.idProduto != null}" th:field="*{idProduto}">
+        <div class="alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+        <form id="produtoForm" th:action="@{/produtos/salvar}" th:object="${produto}" method="post">
+            <input type="hidden" id="idProduto" th:field="*{idProduto}">
 
             <div class="form-group">
                 <label>Nome do Produto</label>
@@ -145,14 +211,18 @@
 
             <div class="form-group">
                 <label>Categoria</label>
-                <select th:field="*{categoria}" required
-                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;">
+                <select th:field="*{categoria}" required>
                     <option value="">Selecione uma categoria</option>
                     <option th:each="cat : ${categorias}"
                             th:value="${cat.idCategoria}"
                             th:text="${cat.nome}">
                     </option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade em Estoque</label>
+                <input type="number" th:field="*{quantidade}" required placeholder="Ex: 10">
             </div>
 
             <div class="actions">
@@ -162,6 +232,39 @@
         </form>
     </div>
 </div>
+
+<dialog id="confirmDialog">
+    <h3>Confirmar Alteração?</h3>
+    <p>Você modificou dados deste produto. Deseja aplicar e salvar as novas informações?</p>
+    <div class="dialog-actions">
+        <button id="cancelBtn" class="btn-dialog btn-close">Voltar</button>
+        <button id="confirmBtn" class="btn-dialog btn-confirm">Sim, Confirmar</button>
+    </div>
+</dialog>
+
+<script>
+    const form = document.getElementById('produtoForm');
+    const idProduto = document.getElementById('idProduto');
+    const dialog = document.getElementById('confirmDialog');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    form.addEventListener('submit', function (event) {
+        // Intercepta caso o ID exista (Modo Edição)
+        if (idProduto && idProduto.value !== '') {
+            event.preventDefault();
+            dialog.showModal();
+        }
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        dialog.close();
+    });
+
+    confirmBtn.addEventListener('click', function () {
+        form.submit();
+    });
+</script>
 
 </body>
 </html>

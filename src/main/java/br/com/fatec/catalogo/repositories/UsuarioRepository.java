@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
 
     Optional<UsuarioModel> findByLogin(String login);
+
+    java.util.List<UsuarioModel> findByLoginContainingIgnoreCase(String login);
 }

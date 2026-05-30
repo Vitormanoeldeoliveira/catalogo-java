@@ -6,23 +6,207 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
     <style>
-        :root { --bg: #f8fafc; --white: #ffffff; --blue: #3b82f6; --dark-blue: #1d4ed8; --text: #1e293b; --dim: #64748b; --border: #e2e8f0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 700px; padding: 0 20px; }
-        h1 { font-size: 2rem; font-weight: 700; letter-spacing: -1px; color: var(--text); }
-        .card-table { background: var(--white); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; width: 100%; border: 1px solid var(--border); margin-bottom: 40px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f1f5f9; padding: 15px 20px; text-align: left; color: var(--dim); font-size: 0.8rem; text-transform: uppercase; }
-        td { padding: 15px 20px; border-bottom: 1px solid var(--border); color: var(--text); }
-        .btn-new { background: var(--blue); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.2s; }
-        .btn-new:hover { background: var(--dark-blue); }
-        .nav-back { margin-top: 20px; margin-bottom: 10px; align-self: flex-start; width: 100%; max-width: 700px; }
-        .nav-back a { color: var(--blue); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+        :root {
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --blue: #3b82f6;
+            --dark-blue: #1d4ed8;
+            --text: #1e293b;
+            --dim: #64748b;
+            --border: #e2e8f0;
+            --error-red: #ef4444;
+            --dark-red: #b91c1c;
+            --dialog-overlay: rgba(15, 23, 42, 0.4);
+        }
 
-        /* Estilo da Busca */
-        .search-container { background: var(--white); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 10px; }
-        .search-input { flex: 1; padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; outline: none; }
-        .btn-search { background: var(--text); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text);
+        }
+
+        .card-table {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 15px 20px;
+            text-align: left;
+            color: var(--dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-new {
+            background: var(--blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .btn-new:hover {
+            background: var(--dark-blue);
+        }
+
+        .nav-back {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            align-self: flex-start;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .nav-back a {
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .btn-search {
+            background: var(--text);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #15803d;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(21, 128, 61, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- Estilização do Modal de Exclusão (Vermelho) --- */
+        dialog {
+            border: none;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        dialog::backdrop {
+            background-color: var(--dialog-overlay);
+            backdrop-filter: blur(4px);
+        }
+
+        dialog h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--error-red);
+        }
+
+        dialog p {
+            color: var(--dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-dialog {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger-confirm {
+            background-color: var(--error-red);
+            color: white;
+        }
+
+        .btn-danger-confirm:hover {
+            background-color: var(--dark-red);
+        }
+
+        .btn-close {
+            background-color: #f1f5f9;
+            color: var(--dim);
+        }
     </style>
 </head>
 <body>
@@ -30,6 +214,9 @@
 <div th:replace="~{fragments/navbar :: nav}"></div>
 
 <div class="container">
+
+    <div class="alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px;">
         <h1>Categorias</h1>
         <a th:href="@{/categorias/novo}" class="btn-new" sec:authorize="hasRole('ADMIN')">+ Nova Categoria</a>
@@ -38,7 +225,8 @@
     <form th:action="@{/categorias}" method="get" class="search-container">
         <input type="text" name="nome" class="search-input" placeholder="Buscar categoria..." th:value="${param.nome}">
         <button type="submit" class="btn-search">Buscar</button>
-        <a th:href="@{/categorias}" th:if="${param.nome}" style="align-self: center; color: var(--dim); font-size: 0.8rem; text-decoration: none;">Limpar</a>
+        <a th:href="@{/categorias}" th:if="${param.nome}"
+           style="align-self: center; color: var(--dim); font-size: 0.8rem; text-decoration: none;">Limpar</a>
     </form>
 
     <div class="card-table">
@@ -58,8 +246,9 @@
                     <a th:href="@{/categorias/editar/{id}(id=${cat.idCategoria})}"
                        style="color: var(--blue); text-decoration: none; font-weight: 600; margin-right: 15px;">Editar</a>
                     <a th:href="@{/categorias/deletar/{id}(id=${cat.idCategoria})}"
-                       style="color: #ef4444; text-decoration: none; font-weight: 600;"
-                       onclick="return confirm('Excluir esta categoria?')">Excluir</a>
+                       th:data-nome="${cat.nome}"
+                       class="btn-delete-trigger"
+                       style="color: #ef4444; text-decoration: none; font-weight: 600;">Excluir</a>
                 </td>
             </tr>
             </tbody>
@@ -70,5 +259,39 @@
         </div>
     </div>
 </div>
+
+<dialog id="deleteDialog">
+    <h3>Excluir Categoria?</h3>
+    <p>Você tem certeza que deseja remover permanentemente a categoria <strong id="deleteTargetName"></strong>? Esta
+        ação não pode ser desfeita.</p>
+    <div class="dialog-actions">
+        <button id="cancelDeleteBtn" class="btn-dialog btn-close">Cancelar</button>
+        <a id="confirmDeleteBtn" href="#" class="btn-dialog btn-danger-confirm">Sim, Excluir</a>
+    </div>
+</dialog>
+
+<script>
+    const dialog = document.getElementById('deleteDialog');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const targetNameSpan = document.getElementById('deleteTargetName');
+
+    // Captura o clique em qualquer link de exclusão da tabela
+    document.querySelectorAll('.btn-delete-trigger').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault(); // Impede o redirecionamento imediato
+
+            const deleteUrl = this.getAttribute('href');
+            const targetName = this.getAttribute('data-nome');
+
+            targetNameSpan.textContent = targetName;
+            confirmDeleteBtn.setAttribute('href', deleteUrl); // Transfere a URL para o botão de confirmação
+
+            dialog.showModal();
+        });
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => dialog.close());
+</script>
 </body>
 </html>

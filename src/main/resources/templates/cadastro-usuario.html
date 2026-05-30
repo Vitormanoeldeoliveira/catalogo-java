@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Categoria</title>
+    <title>Gerenciar Usuário</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -16,6 +16,7 @@
             --text-dim: #64748b;
             --border-color: #e2e8f0;
             --error-red: #ef4444;
+            --alert-bg: #fef2f2;
             --dialog-overlay: rgba(15, 23, 42, 0.4);
         }
 
@@ -64,7 +65,7 @@
             margin-bottom: 8px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border-color);
@@ -72,22 +73,24 @@
             font-size: 1rem;
             box-sizing: border-box;
             transition: all 0.2s ease;
+            background-color: var(--white);
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary-green);
         }
 
-        input.is-invalid {
-            border-color: var(--error-red);
-        }
-
-        .error-message {
+        .alert-error {
+            background-color: var(--alert-bg);
             color: var(--error-red);
-            font-size: 0.8rem;
-            margin-top: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #fee2e2;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
             font-weight: 500;
+            text-align: center;
         }
 
         .actions {
@@ -179,33 +182,42 @@
 
 <div class="container">
     <div class="card">
-        <h2 th:text="${categoria.idCategoria != null} ? 'Editar Categoria' : 'Nova Categoria'">Categoria</h2>
+        <h2 th:text="${usuario.idUsuario != null} ? 'Editar Perfil' : 'Criar Conta'">Criar Conta</h2>
 
-        <form id="categoriaForm" th:action="@{/categorias/novo}" th:object="${categoria}" method="post">
-            <input type="hidden" id="idCategoria" th:field="*{idCategoria}">
+        <div class="alert-error" th:if="${erro}" th:text="${erro}"></div>
+
+        <form id="usuarioForm" th:action="@{/cadastro}" th:object="${usuario}" method="post">
+            <input type="hidden" id="idUsuario" th:field="*{idUsuario}">
 
             <div class="form-group">
-                <label>Nome da Categoria</label>
-                <input type="text" th:field="*{nome}"
-                       placeholder="Mínimo 3 caracteres"
-                       minlength="3"
-                       th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''"
-                       required>
+                <label>Login / Usuário</label>
+                <input type="text" th:field="*{login}" placeholder="Digite seu login" required>
+            </div>
 
-                <div class="error-message" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" th:field="*{senha}" placeholder="Digite sua senha" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Perfil</label>
+                <select th:field="*{perfil}">
+                    <option value="ALUNO">Aluno</option>
+                    <option value="ADMIN">Administrador</option>
+                </select>
             </div>
 
             <div class="actions">
-                <button type="submit" class="btn btn-save">Salvar Categoria</button>
-                <a th:href="@{/categorias}" class="btn btn-cancel">Cancelar</a>
+                <button type="submit" class="btn btn-save">Cadastrar</button>
+                <a th:href="@{/usuarios}" class="btn btn-cancel">Voltar</a>
             </div>
         </form>
     </div>
 </div>
 
 <dialog id="confirmDialog">
-    <h3>Confirmar Alteração?</h3>
-    <p>Você está prestes a editar este registro. Deseja salvar as modificações feitas?</p>
+    <h3>Alterar Dados do Usuário?</h3>
+    <p>Você está editando este usuário. Tem certeza de que quer salvar as novas configurações de acesso?</p>
     <div class="dialog-actions">
         <button id="cancelBtn" class="btn-dialog btn-close">Voltar</button>
         <button id="confirmBtn" class="btn-dialog btn-confirm">Sim, Confirmar</button>
@@ -213,26 +225,24 @@
 </dialog>
 
 <script>
-    const form = document.getElementById('categoriaForm');
-    const idCategoria = document.getElementById('idCategoria');
+    const form = document.getElementById('usuarioForm');
+    const idUsuario = document.getElementById('idUsuario');
     const dialog = document.getElementById('confirmDialog');
     const cancelBtn = document.getElementById('cancelBtn');
     const confirmBtn = document.getElementById('confirmBtn');
 
     form.addEventListener('submit', function (event) {
-        // Se idCategoria tiver valor, significa que é uma EDIÇÃO
-        if (idCategoria.value !== '') {
-            event.preventDefault(); // Impede o envio imediato do formulário
-            dialog.showModal();     // Abre a dialog com efeito de fundo borrado
+        // Abre confirmação se for uma edição de usuário existente
+        if (idUsuario && idUsuario.value !== '') {
+            event.preventDefault();
+            dialog.showModal();
         }
     });
 
-    // Se clicar em "Voltar", apenas fecha a janela
     cancelBtn.addEventListener('click', function () {
         dialog.close();
     });
 
-    // Se clicar em "Sim, Confirmar", envia o formulário de verdade
     confirmBtn.addEventListener('click', function () {
         form.submit();
     });

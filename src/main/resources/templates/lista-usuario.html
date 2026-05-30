@@ -2,14 +2,15 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Produtos</title>
+    <title>Gerenciar Usuários</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <th:block th:replace="~{fragments/navbar :: nav-style}"></th:block>
     <style>
         :root {
             --bg: #f8fafc;
             --white: #ffffff;
-            --green: #10b981;
+            --blue: #3b82f6;
+            --dark-blue: #1d4ed8;
             --text: #1e293b;
             --dim: #64748b;
             --border: #e2e8f0;
@@ -30,8 +31,15 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 700px;
             padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text);
         }
 
         .card-table {
@@ -40,6 +48,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             width: 100%;
+            border: 1px solid var(--border);
             margin-bottom: 40px;
         }
 
@@ -64,7 +73,7 @@
         }
 
         .btn-new {
-            background: var(--green);
+            background: var(--blue);
             color: white;
             padding: 10px 20px;
             border-radius: 8px;
@@ -75,50 +84,41 @@
         }
 
         .btn-new:hover {
-            background: #065f46;
+            background: var(--dark-blue);
         }
 
-        .category-tag {
-            background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: var(--dim);
+        .nav-back {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            align-self: flex-start;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .nav-back a {
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
         }
 
         .search-container {
             background: var(--white);
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             border: 1px solid var(--border);
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
         }
 
-        .search-input, .search-select {
+        .search-input {
+            flex: 1;
             padding: 10px 15px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-family: 'Inter', sans-serif;
             outline: none;
-        }
-
-        .search-input {
-            flex: 2;
-            min-width: 200px;
-        }
-
-        .search-select {
-            flex: 1;
-            min-width: 150px;
-            background-color: white;
-        }
-
-        .search-input:focus, .search-select:focus {
-            border-color: var(--green);
         }
 
         .btn-search {
@@ -129,7 +129,6 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            height: 40px;
         }
 
         .alert-success {
@@ -139,7 +138,8 @@
             border-radius: 8px;
             font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
             border: 1px solid rgba(21, 128, 61, 0.2);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
             text-align: center;
@@ -217,50 +217,39 @@
 
     <div class="alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Catálogo de Produtos</h1>
-        <a th:href="@{/produtos/novo}" class="btn-new" sec:authorize="hasRole('ADMIN')">+ Novo Produto</a>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px;">
+        <h1>Usuários</h1>
+        <a th:href="@{/cadastro}" class="btn-new" sec:authorize="hasRole('ADMIN')">+ Novo Usuário</a>
     </div>
 
-    <form th:action="@{/produtos}" method="get" class="search-container">
-        <input type="text" name="nome" class="search-input" placeholder="Nome do produto..." th:value="${param.nome}">
-
-        <select name="categoriaId" class="search-select">
-            <option value="">Todas as Categorias</option>
-            <option th:each="cat : ${categorias}"
-                    th:value="${cat.idCategoria}"
-                    th:text="${cat.nome}"
-                    th:selected="${cat.idCategoria == categoriaSelecionada}">
-            </option>
-        </select>
-
-        <button type="submit" class="btn-search">Filtrar</button>
-        <a th:href="@{/produtos}" th:if="${param.nome != null or param.categoriaId != null}"
-           style="color: var(--dim); font-size: 0.85rem; text-decoration: none; margin-left: 5px;">Limpar</a>
+    <form th:action="@{/usuarios}" method="get" class="search-container">
+        <input type="text" name="login" class="search-input" placeholder="Buscar usuário por login..."
+               th:value="${param.login}">
+        <button type="submit" class="btn-search">Buscar</button>
+        <a th:href="@{/usuarios}" th:if="${param.login}"
+           style="align-self: center; color: var(--dim); font-size: 0.8rem; text-decoration: none;">Limpar</a>
     </form>
 
     <div class="card-table">
-        <table th:if="${not #lists.isEmpty(produtos)}">
+        <table th:if="${not #lists.isEmpty(usuarios)}">
             <thead>
             <tr>
-                <th>Nome</th>
-                <th>Categoria</th>
-                <th>Preço</th>
-                <th sec:authorize="hasRole('ADMIN')" style="text-align: center;">Ações</th>
+                <th style="width: 80px;">ID</th>
+                <th>Login / Usuário</th>
+                <th>Perfil</th>
+                <th sec:authorize="hasRole('ADMIN')" style="text-align: center; width: 150px;">Ações</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="p : ${produtos}">
-                <td th:text="${p.nome}" style="font-weight: 600;"></td>
-                <td><span class="category-tag" th:text="${p.categoria != null ? p.categoria.nome : 'Geral'}"></span>
-                </td>
-                <td th:text="${'R$ ' + p.valor}"></td>
-
+            <tr th:each="user : ${usuarios}">
+                <td th:text="${user.idUsuario}" style="color: var(--dim);"></td>
+                <td th:text="${user.login}" style="font-weight: 600;"></td>
+                <td th:text="${user.perfil}"></td>
                 <td sec:authorize="hasRole('ADMIN')" style="text-align: center;">
-                    <a th:href="@{/produtos/editar/{id}(id=${p.idProduto})}"
-                       style="color: var(--green); text-decoration: none; font-weight: 600; margin-right: 10px;">Editar</a>
-                    <a th:href="@{/produtos/excluir/{id}(id=${p.idProduto})}"
-                       th:data-nome="${p.nome}"
+                    <a th:href="@{/usuarios/editar/{id}(id=${user.idUsuario})}"
+                       style="color: var(--blue); text-decoration: none; font-weight: 600; margin-right: 15px;">Editar</a>
+                    <a th:href="@{/usuarios/deletar/{id}(id=${user.idUsuario})}"
+                       th:data-nome="${user.login}"
                        class="btn-delete-trigger"
                        style="color: #ef4444; text-decoration: none; font-weight: 600;">Excluir</a>
                 </td>
@@ -268,16 +257,16 @@
             </tbody>
         </table>
 
-        <div th:if="${#lists.isEmpty(produtos)}" style="padding: 40px; text-align: center; color: var(--dim);">
-            <p>Nenhum produto encontrado para o filtro aplicado.</p>
+        <div th:if="${#lists.isEmpty(usuarios)}" style="padding: 40px; text-align: center; color: var(--dim);">
+            <p>Nenhum usuário encontrado.</p>
         </div>
     </div>
 </div>
 
 <dialog id="deleteDialog">
-    <h3>Excluir Produto?</h3>
-    <p>Você tem certeza que deseja remover permanentemente o produto <strong id="deleteTargetName"></strong> do
-        catálogo? Esta ação não pode ser desfeita.</p>
+    <h3>Excluir Conta de Usuário?</h3>
+    <p>Você tem certeza que deseja revogar o acesso e deletar o usuário <strong id="deleteTargetName"></strong>? Esta
+        ação não pode ser revertida.</p>
     <div class="dialog-actions">
         <button id="cancelDeleteBtn" class="btn-dialog btn-close">Cancelar</button>
         <a id="confirmDeleteBtn" href="#" class="btn-dialog btn-danger-confirm">Sim, Excluir</a>
